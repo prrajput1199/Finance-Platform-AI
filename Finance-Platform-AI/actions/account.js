@@ -67,16 +67,19 @@ export async function bulkDeleteTransactions(transactionIds) {
       },
     });
 
+    console.log("Transactions to delete:", transactions);
     // Group transactions by account to update balances
     const accountBalanceChanges = transactions.reduce((acc, transaction) => {
+      const amount = Number(transaction.amount);
       const change =
         transaction.type === "EXPENSE"
-          ? transaction.amount
-          : -transaction.amount;
+          ? amount
+          : -amount;
       acc[transaction.accountId] = (acc[transaction.accountId] || 0) + change;
       return acc;
     }, {});
 
+    console.log("Account balance changes:", accountBalanceChanges);
     // Delete transactions and update account balances in a transaction
     await db.$transaction(async (tx) => {
       // Delete transactions
